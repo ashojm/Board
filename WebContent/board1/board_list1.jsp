@@ -38,7 +38,10 @@
 		DataSource dataSource = (DataSource)envCtx.lookup("jdbc/oracle");
 		conn = dataSource.getConnection();
 			
-		String sql = "select seq,subject,writer,to_char(wdate,'yy.mm.dd') wdate, hit from BOARD1 order by seq desc";
+		String sql = 	  "select seq,subject,writer,to_char(wdate,'yy.mm.dd') wdate, hit, case when wdate < sysdate then 'N' " 
+        					+ "when wdate >= sysdate then 'Y' end as newPost "    
+									+ "from BOARD1 order by seq desc";
+
 	    pstmt = conn.prepareStatement(sql);
 	    
 	    rs = pstmt.executeQuery();
@@ -48,6 +51,7 @@
 	    	String writer = rs.getString("writer");
 	    	String wdate = rs.getString("wdate");
 	    	String hit = rs.getString("hit");
+	    	String newPost = rs.getString("newPost");
 	  
 			result.append("<table width='100%' border='0' cellpadding='0' cellspacing='0'>");
 			result.append("<tr>");
@@ -61,7 +65,11 @@
 			result.append("				<td>");
 			result.append("					<span style='width:370' class='elltxt'>");
 			result.append("						<a href='board_view1.jsp?seq=" + seq + "'>" + subject + "</a>");
-			result.append("						<img src='../images/ico_n.gif' width='8' height='8' border='0' hspace='3'>");
+			
+			if(newPost.equals("Y")){
+																result.append("<img src='../images/ico_n.gif' width='8' height='8' border='0' hspace='3'>");
+			}
+			
 			result.append("					</span>");
 			result.append("					</td>");
 			result.append("				<td width='100' align='center'>" + writer + "</td>");
